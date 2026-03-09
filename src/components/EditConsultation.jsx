@@ -333,16 +333,13 @@ const EditConsultation = () => {
         throw new Error(err.details || err.error || `HTTP ${res.status}`);
       }
 
-      toast.success("Consultation updated successfully!");
-
-      try { handlePrint(); } catch {}
-
       // Bust stale caches
       try {
         sessionStorage.removeItem(`fc:patient-history:${patientId}`);
       } catch {}
       dispatch(invalidateDashboard());
 
+      toast.success("Consultation updated successfully!");
       navigate(`/patients/${patientId}/history`);
     } catch (err) {
       toast.error(err.message || "Failed to update consultation");
