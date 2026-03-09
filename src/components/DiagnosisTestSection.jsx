@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import CreatableSelect from 'react-select/creatable';
 import Loader from '../pages/Loader';
 import debounce from 'lodash/debounce';
+import { getToken } from '../utils/auth';
 
 const BASE_URL = 'https://new-patient-management-backend-syst.vercel.app';
 
@@ -20,7 +21,10 @@ const DiagnosticTestsSection = ({
     const fetchTests = async () => {
       setIsFetchingTests(true);
       try {
-        const response = await axios.get(`${BASE_URL}/api/tests`);
+        const token = getToken();
+        const response = await axios.get(`${BASE_URL}/api/tests`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         setTests(
           response.data.map((test) => ({
             value: String(test.id), // Use id as value
@@ -43,11 +47,14 @@ const DiagnosticTestsSection = ({
     }
     setIsCreatingTests(true);
     try {
+      const token = getToken();
       const payload = {
         test_name: inputValue,
         test_notes: 'Created via UI',
       };
-      const response = await axios.post(`${BASE_URL}/api/tests`, payload);
+      const response = await axios.post(`${BASE_URL}/api/tests`, payload, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const newTest = {
         value: String(response.data.id), // Use id from server
         label: response.data.test_name,
@@ -71,8 +78,10 @@ const DiagnosticTestsSection = ({
       }
       setIsSearchingTests(true);
       try {
+        const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/api/tests?search=${encodeURIComponent(inputValue)}`
+          `${BASE_URL}/api/tests?search=${encodeURIComponent(inputValue)}`,
+          { headers: token ? { Authorization: `Bearer ${token}` } : {} }
         );
         setTests(
           response.data.map((test) => ({
