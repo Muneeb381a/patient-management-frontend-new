@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectNeuroOptions } from '../store/slices/appDataSlice';
 import NeuroExamSelect from './NeuroExamSelect';
 
 const defaultFields = [
@@ -29,6 +31,18 @@ const NeurologicalExamSection = ({
   setNeuroExamData,
   fields = defaultFields,
 }) => {
+  // Use preloaded Redux data (fetched once at login in AppShell) to avoid
+  // 20 individual API calls per render. Convert format: {value:id, label:text}
+  // → {label:text, value:text} so the stored value is always the text string.
+  const reduxNeuroOptions = useSelector(selectNeuroOptions);
+  const neuroOptionsByField = React.useMemo(() => {
+    const result = {};
+    for (const [field, opts] of Object.entries(reduxNeuroOptions)) {
+      result[field] = (opts || []).map((opt) => ({ label: opt.label, value: opt.label }));
+    }
+    return result;
+  }, [reduxNeuroOptions]);
+
   const initializedNeuroData = {
     // Select fields
     motor_function: '',
@@ -97,6 +111,7 @@ const NeurologicalExamSection = ({
               field={field}
               value={initializedNeuroData[field]}
               onChange={handleFieldChange}
+              preloadedOptions={neuroOptionsByField[field]}
             />
           );
         })}

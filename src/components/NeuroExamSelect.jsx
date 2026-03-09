@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import axios from 'axios';
+import { getToken } from '../utils/auth';
 
 const fieldLabelMap = {
   motor_function: 'Motor Functions',
@@ -49,21 +50,29 @@ const fieldColors = {
   default: '#3b82f6', // Default color
 };
 
-const NeuroExamSelect = ({ field, value, onChange }) => {
-  const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(true);
+const NeuroExamSelect = ({ field, value, onChange, preloadedOptions }) => {
+  const [options, setOptions] = useState(preloadedOptions || []);
+  const [loading, setLoading] = useState(!preloadedOptions);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
 
   const fieldColor = fieldColors[field] || fieldColors.default;
 
   useEffect(() => {
+    // Skip API call when parent already provided options from Redux
+    if (preloadedOptions) {
+      setOptions(preloadedOptions);
+      setLoading(false);
+      return;
+    }
     const loadOptions = async () => {
       setLoading(true);
       setError(null);
       try {
+        const token = getToken();
         const response = await axios.get(
-          `https://new-patient-management-backend-syst.vercel.app/api/neuro-options/${field}`
+          `https://new-patient-management-backend-syst.vercel.app/api/neuro-options/${field}`,
+          { headers: token ? { Authorization: `Bearer ${token}` } : {} }
         );
         const responseData = response.data.data || response.data;
 
@@ -84,7 +93,7 @@ const NeuroExamSelect = ({ field, value, onChange }) => {
     };
 
     loadOptions();
-  }, [field]);
+  }, [field, preloadedOptions]);
 
   const handleChange = (selectedOption) => {
     onChange(field, selectedOption?.value || '');
@@ -93,9 +102,11 @@ const NeuroExamSelect = ({ field, value, onChange }) => {
   const handleCreate = async (inputValue) => {
     setIsCreating(true);
     try {
+      const token = getToken();
       const { data } = await axios.post(
         `https://new-patient-management-backend-syst.vercel.app/api/neuro-options/${field}`,
-        { value: inputValue }
+        { value: inputValue },
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
 
       const newOption = { label: data.data.value, value: data.data.value };
