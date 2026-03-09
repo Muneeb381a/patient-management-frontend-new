@@ -67,6 +67,30 @@ const SymptomAnalysisSection = ({
     return () => clearTimeout(timer);
   }, [selectedSymptoms]);
 
+  const getFormDefaults = (form) => {
+    const f = (form || 'Tablet').toLowerCase();
+    if (f === 'tablet') {
+      return { dosage_en: '1', dosage_urdu: 'ایک گولی', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    }
+    if (f === 'capsule') {
+      return { dosage_en: '1_capsule', dosage_urdu: 'ایک کیپسول', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    }
+    if (['syrup', 'liquid', 'suspension', 'elixir'].includes(f)) {
+      return { dosage_en: 'one_spoon', dosage_urdu: 'ایک چمچ', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    }
+    if (['injection', 'injectable', 'iv', 'im'].includes(f)) {
+      return { dosage_en: 'one_injection', dosage_urdu: 'ایک ٹیکہ', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'as_directed', instructions_urdu: 'ڈاکٹر کے مشورے سے' };
+    }
+    if (['sachet', 'powder', 'granules'].includes(f)) {
+      return { dosage_en: 'one_sachet', dosage_urdu: 'ایک ساشے', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    }
+    if (f.includes('drop')) {
+      return { dosage_en: 'two_droplets', dosage_urdu: 'دو قطرے', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'as_directed', instructions_urdu: 'ڈاکٹر کے مشورے سے' };
+    }
+    // Default fallback
+    return { dosage_en: '1', dosage_urdu: '', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+  };
+
   const handleAddSuggestedMedicine = (med) => {
     if (!setSelectedMedicines) return;
     setSelectedMedicines((prev) => {
@@ -74,20 +98,13 @@ const SymptomAnalysisSection = ({
         toast.info(`${med.brand_name || med.generic_name} is already in the prescription`);
         return prev;
       }
-      const isTablet = (med.form || 'Tablet').toLowerCase() === 'tablet';
+      const defaults = getFormDefaults(med.form);
       return [
         ...prev,
         {
           medicine_id: Number(med.medicine_id),
           brand_name: med.brand_name || med.generic_name || 'Unknown',
-          dosage_en: isTablet ? '1' : '',
-          dosage_urdu: isTablet ? 'ایک گولی' : '',
-          frequency_en: isTablet ? 'morning' : '',
-          frequency_urdu: isTablet ? 'صبح' : '',
-          duration_en: isTablet ? '7_days' : '',
-          duration_urdu: isTablet ? '1 ہفتہ' : '',
-          instructions_en: isTablet ? 'after_meal' : '',
-          instructions_urdu: isTablet ? 'کھانے کے بعد' : '',
+          ...defaults,
         },
       ];
     });

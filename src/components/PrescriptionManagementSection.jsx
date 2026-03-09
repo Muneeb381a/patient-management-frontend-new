@@ -9,18 +9,31 @@ import { getToken } from "../utils/auth";
 
 const BASE_URL = "https://new-patient-management-backend-syst.vercel.app";
 
-const MEDICINE_DEFAULTS = {
-  Tablet: {
-    dosage_en: "1",
-    dosage_urdu: "ایک گولی",
-    frequency_en: "morning",
-    frequency_urdu: "صبح",
-    duration_en: "7_days",
-    duration_urdu: "1 ہفتہ",
-    instructions_en: "after_meal",
-    instructions_urdu: "کھانے کے بعد",
-  },
+const getDefaultsForForm = (form) => {
+  const f = (form || "Tablet").toLowerCase();
+  if (f === "tablet") {
+    return { dosage_en: "1", dosage_urdu: "ایک گولی", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "after_meal", instructions_urdu: "کھانے کے بعد" };
+  }
+  if (f === "capsule") {
+    return { dosage_en: "1_capsule", dosage_urdu: "ایک کیپسول", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "after_meal", instructions_urdu: "کھانے کے بعد" };
+  }
+  if (["syrup", "liquid", "suspension", "elixir"].includes(f)) {
+    return { dosage_en: "one_spoon", dosage_urdu: "ایک چمچ", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "after_meal", instructions_urdu: "کھانے کے بعد" };
+  }
+  if (["injection", "injectable", "iv", "im"].includes(f)) {
+    return { dosage_en: "one_injection", dosage_urdu: "ایک ٹیکہ", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "as_directed", instructions_urdu: "ڈاکٹر کے مشورے سے" };
+  }
+  if (["sachet", "powder", "granules"].includes(f)) {
+    return { dosage_en: "one_sachet", dosage_urdu: "ایک ساشے", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "after_meal", instructions_urdu: "کھانے کے بعد" };
+  }
+  if (f.includes("drop")) {
+    return { dosage_en: "two_droplets", dosage_urdu: "دو قطرے", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "as_directed", instructions_urdu: "ڈاکٹر کے مشورے سے" };
+  }
+  return { dosage_en: "1", dosage_urdu: "", frequency_en: "morning", frequency_urdu: "صبح", duration_en: "7_days", duration_urdu: "1 ہفتہ", instructions_en: "after_meal", instructions_urdu: "کھانے کے بعد" };
 };
+
+// Keep backward compat alias used in handleAddCourse / handleAddMedicine
+const MEDICINE_DEFAULTS = { Tablet: getDefaultsForForm("Tablet") };
 
 const PrescriptionManagementSection = ({
   selectedMedicines = [],
@@ -234,9 +247,13 @@ const PrescriptionManagementSection = ({
                         );
                         return;
                       }
+                      const form = selectedOption?.raw?.form;
+                      const defaults = form ? getDefaultsForForm(form) : null;
                       setSelectedMedicines((prev) =>
                         prev.map((item, i) =>
-                          i === index ? { ...item, medicine_id: newId } : item,
+                          i === index
+                            ? { ...item, medicine_id: newId, ...(defaults || {}) }
+                            : item,
                         ),
                       );
                     }}
