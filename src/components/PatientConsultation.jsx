@@ -210,11 +210,11 @@ const PatientConsultation = () => {
       if (mappedMeds.length > 0) setSelectedMedicines(mappedMeds);
     }
 
-    // Map tests: test_id → { value: test_id, label: test_name }
+    // Map tests: DiagnosisTestSection expects an array of string IDs
     if (Array.isArray(cloned.tests) && cloned.tests.length > 0) {
       const mappedTests = cloned.tests
         .filter((t) => t.test_id)
-        .map((t) => ({ value: String(t.test_id), label: t.test_name }));
+        .map((t) => String(t.test_id));
       if (mappedTests.length > 0) setSelectedTests(mappedTests);
     }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { getToken } from "../utils/auth";
 import { IoManOutline } from "react-icons/io5";
 import { FaPersonFallingBurst } from "react-icons/fa6";
 
@@ -55,9 +56,13 @@ const PatientHistory = () => {
     setError("");
 
     try {
+      const token = getToken();
       const response = await axios.get(
         `https://new-patient-management-backend-syst.vercel.app/api/patient-history/${patientId}`,
-        { timeout: 10000 }
+        {
+          timeout: 10000,
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
       );
       setHistory(
         Array.isArray(response.data) ? response.data : [response.data]
