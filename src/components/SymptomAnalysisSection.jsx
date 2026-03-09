@@ -69,26 +69,26 @@ const SymptomAnalysisSection = ({
 
   const getFormDefaults = (form) => {
     const f = (form || 'Tablet').toLowerCase();
-    if (f === 'tablet') {
-      return { dosage_en: '1', dosage_urdu: 'ایک گولی', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    if (f.includes('tablet')) {
+      return { dosage_en: '1', dosage_urdu: 'ایک گولی', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
     }
-    if (f === 'capsule') {
-      return { dosage_en: '1_capsule', dosage_urdu: 'ایک کیپسول', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    if (f.includes('capsule')) {
+      return { dosage_en: '1', dosage_urdu: 'ایک گولی', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
     }
-    if (['syrup', 'liquid', 'suspension', 'elixir'].includes(f)) {
-      return { dosage_en: 'one_spoon', dosage_urdu: 'ایک چمچ', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    if (['syrup', 'liquid', 'suspension', 'elixir'].some((t) => f.includes(t))) {
+      return { dosage_en: 'one_spoon', dosage_urdu: 'ایک چمچ', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
     }
-    if (['injection', 'injectable', 'iv', 'im'].includes(f)) {
-      return { dosage_en: 'one_injection', dosage_urdu: 'ایک ٹیکہ', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'as_directed', instructions_urdu: 'ڈاکٹر کے مشورے سے' };
+    if (['injection', 'injectable', 'iv', 'im'].some((t) => f.includes(t))) {
+      return { dosage_en: 'one_injection', dosage_urdu: 'ایک ٹیکہ', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
     }
-    if (['sachet', 'powder', 'granules'].includes(f)) {
-      return { dosage_en: 'one_sachet', dosage_urdu: 'ایک ساشے', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    if (['sachet', 'powder', 'granules'].some((t) => f.includes(t))) {
+      return { dosage_en: 'one_sachet', dosage_urdu: 'ایک ساشے', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
     }
     if (f.includes('drop')) {
-      return { dosage_en: 'two_droplets', dosage_urdu: 'دو قطرے', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'as_directed', instructions_urdu: 'ڈاکٹر کے مشورے سے' };
+      return { dosage_en: 'two_droplets', dosage_urdu: 'دو قطرے', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
     }
     // Default fallback
-    return { dosage_en: '1', dosage_urdu: '', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
+    return { dosage_en: '1', dosage_urdu: 'ایک گولی', frequency_en: 'morning', frequency_urdu: 'صبح', duration_en: '7_days', duration_urdu: '1 ہفتہ (7 دن)', instructions_en: 'after_meal', instructions_urdu: 'کھانے کے بعد' };
   };
 
   const handleAddSuggestedMedicine = (med) => {
