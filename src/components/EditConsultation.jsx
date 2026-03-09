@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -90,8 +90,8 @@ const EditConsultation = () => {
   const [followUpNotes, setFollowUpNotes] = useState("");
   const [selectedDuration, setSelectedDuration] = useState(null);
 
-  // Ref to hold raw symptom names until symptomsOptions are ready
-  const pendingSymptomNames = useRef(null);
+  // Symptom names from the loaded consultation — matched against Redux options
+  const [pendingSymptomNames, setPendingSymptomNames] = useState([]);
 
   const customSelectStyles = useMemo(() => ({
     control: (base) => ({
@@ -209,7 +209,7 @@ const EditConsultation = () => {
           ? data.symptoms.filter(Boolean)
           : [];
         if (symptomNames.length > 0) {
-          pendingSymptomNames.current = symptomNames;
+          setPendingSymptomNames(symptomNames);
         }
       } catch (err) {
         setFetchError(`Failed to load consultation: ${err.message}`);
@@ -223,16 +223,14 @@ const EditConsultation = () => {
 
   // Match symptom names → Redux options once both are ready
   useEffect(() => {
-    if (!symptomsOptions.length || !pendingSymptomNames.current?.length) return;
-    const nameSet = new Set(
-      pendingSymptomNames.current.map((n) => n.toLowerCase())
-    );
+    if (!symptomsOptions.length || !pendingSymptomNames.length) return;
+    const nameSet = new Set(pendingSymptomNames.map((n) => n.toLowerCase()));
     const matched = symptomsOptions.filter((s) =>
       nameSet.has(s.label?.toLowerCase())
     );
     if (matched.length > 0) setSelectedSymptoms(matched);
-    pendingSymptomNames.current = null;
-  }, [symptomsOptions]);
+    setPendingSymptomNames([]);
+  }, [symptomsOptions, pendingSymptomNames]);
 
   const handlePrint = () => {
     if (!patient) return;
@@ -341,7 +339,7 @@ const EditConsultation = () => {
 
       toast.success("Consultation updated successfully!");
       try { handlePrint(); } catch {}
-      navigate(`/patients/${patientId}/history`);
+      navigate(`/patients/${patientId}`);
     } catch (err) {
       toast.error(err.message || "Failed to update consultation");
     } finally {
