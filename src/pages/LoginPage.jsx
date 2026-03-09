@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { saveAuth } from "../utils/auth";
 
-const BASE_URL = "http://localhost:4500";
+const BASE_URL = "https://new-patient-management-backend-syst.vercel.app";
 
 const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState("");
