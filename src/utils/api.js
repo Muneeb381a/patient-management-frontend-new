@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getToken, logout } from "./auth";
 
-const BASE_URL = "http://localhost:4500";
+const BASE_URL = "https://new-patient-management-backend-syst.vercel.app";
 
 // Session-level cache for GET requests — cleared on tab close, never stale across logins.
 const SESSION_CACHE_PREFIX = "fc:";

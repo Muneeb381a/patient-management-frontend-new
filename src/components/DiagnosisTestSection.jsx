@@ -5,7 +5,7 @@ import CreatableSelect from 'react-select/creatable';
 import Loader from '../pages/Loader';
 import debounce from 'lodash/debounce';
 
-const BASE_URL = 'https://patient-management-backend-nine.vercel.app';
+const BASE_URL = 'https://new-patient-management-backend-syst.vercel.app';
 
 const DiagnosticTestsSection = ({
   selectedTests = [],

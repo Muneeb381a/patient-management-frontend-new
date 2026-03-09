@@ -63,7 +63,7 @@ const NeuroExamSelect = ({ field, value, onChange }) => {
       setError(null);
       try {
         const response = await axios.get(
-          `https://patient-management-backend-nine.vercel.app/api/neuro-options/${field}`
+          `https://new-patient-management-backend-syst.vercel.app/api/neuro-options/${field}`
         );
         const responseData = response.data.data || response.data;
 
@@ -94,7 +94,7 @@ const NeuroExamSelect = ({ field, value, onChange }) => {
     setIsCreating(true);
     try {
       const { data } = await axios.post(
-        `https://patient-management-backend-nine.vercel.app/api/neuro-options/${field}`,
+        `https://new-patient-management-backend-syst.vercel.app/api/neuro-options/${field}`,
         { value: inputValue }
       );
 

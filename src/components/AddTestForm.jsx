@@ -6,7 +6,7 @@ import Loader from '../pages/Loader';
 import { FaArrowLeft, FaPrint, FaFlask, FaUser } from 'react-icons/fa';
 import DiagnosisTestSection from './DiagnosisTestSection';
 
-const BASE_URL = 'https://patient-management-backend-nine.vercel.app';
+const BASE_URL = 'https://new-patient-management-backend-syst.vercel.app';
 const DOCTOR_NAME = 'Dr. Umer'; 
 const AddTestForm = () => {
   const { patientId } = useParams();

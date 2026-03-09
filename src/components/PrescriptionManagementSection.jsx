@@ -7,7 +7,7 @@ import { AiOutlineCloseCircle, AiOutlinePlus } from "react-icons/ai";
 import Loader from "../pages/Loader";
 import { getToken } from "../utils/auth";
 
-const BASE_URL = "http://localhost:4500";
+const BASE_URL = "https://new-patient-management-backend-syst.vercel.app";
 
 const MEDICINE_DEFAULTS = {
   Tablet: {

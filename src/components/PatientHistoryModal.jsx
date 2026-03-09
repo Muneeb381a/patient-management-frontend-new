@@ -56,7 +56,7 @@ const PatientHistory = () => {
 
     try {
       const response = await axios.get(
-        `https://patient-management-backend-nine.vercel.app/api/patient-history/${patientId}`,
+        `https://new-patient-management-backend-syst.vercel.app/api/patient-history/${patientId}`,
         { timeout: 10000 }
       );
       setHistory(

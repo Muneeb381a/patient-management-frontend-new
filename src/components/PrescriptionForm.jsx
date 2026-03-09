@@ -33,7 +33,7 @@ const PrescriptionForm = ({ patientData }) => {
             duration_urdu: durationUrdu,
         };
         try {
-            await axios.post("https://patient-management-backend-nine.vercel.app/api/prescriptions", prescription);
+            await axios.post("https://new-patient-management-backend-syst.vercel.app/api/prescriptions", prescription);
             alert("Prescription added successfully!");
         } catch (error) {
         }

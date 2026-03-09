@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4500/api";  // Change if deployed
+const API_URL = "https://new-patient-management-backend-syst.vercel.app/api";  // Change if deployed
 
 export const searchPatientByMobile = async (mobile) => {
     return axios.get(`${API_URL}/patients/search?mobile=${mobile}`);
@@ -8,7 +8,7 @@ export const searchPatientByMobile = async (mobile) => {
 
 export const getPatientHistory = async (patient_id) => {
     try {
-        const response = await axios.get(`http://localhost:4500/api/patients/${patient_id}/history`);
+        const response = await axios.get(`https://new-patient-management-backend-syst.vercel.app/api/patients/${patient_id}/history`);
         return response.data;  // Return only data
     } catch (error) {
         return null;  // Avoid crashing if no history
@@ -24,11 +24,11 @@ export const addConsultation = async (data) => {
     return axios.post(`${API_URL}/consultations`, data);
 };
 export const fetchSymptoms = async () => {
-    const response = await axios.get("http://localhost:4500/api/symptoms");
+    const response = await axios.get("https://new-patient-management-backend-syst.vercel.app/api/symptoms");
     return response.data;
 };
 
 export const fetchMedicines = async () => {
-    const response = await axios.get("http://localhost:4500/api/medicines");
+    const response = await axios.get("https://new-patient-management-backend-syst.vercel.app/api/medicines");
     return response.data;
 };

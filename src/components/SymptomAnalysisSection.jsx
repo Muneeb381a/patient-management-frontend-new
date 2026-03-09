@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import CreatableSelect from 'react-select/creatable';
 import { getToken } from '../utils/auth';
 
-const BASE_URL = "http://localhost:4500";
+const BASE_URL = "https://new-patient-management-backend-syst.vercel.app";
 
 // Module-level cache: key = sorted symptom IDs joined, value = suggestion response
 // Persists across re-renders, cleared when the page is refreshed
