@@ -340,6 +340,7 @@ const EditConsultation = () => {
       dispatch(invalidateDashboard());
 
       toast.success("Consultation updated successfully!");
+      try { handlePrint(); } catch {}
       navigate(`/patients/${patientId}/history`);
     } catch (err) {
       toast.error(err.message || "Failed to update consultation");
