@@ -77,6 +77,19 @@ const PatientHistory = () => {
     navigate(`/patients/${patientId}/consultations/${consultationId}/edit`);
   };
 
+  const handleRepeatPrescription = (record) => {
+    setShowModal(false);
+    navigate(`/patients/${patientId}/consultation`, {
+      state: {
+        clonedConsultation: {
+          prescriptions: record.prescriptions || [],
+          tests: record.tests || [],
+          symptoms: record.symptoms || [],
+        },
+      },
+    });
+  };
+
   const DetailItem = ({ label, valueEn, valueUr, icon }) => (
     <div className="detail-item bg-gray-50 p-3 rounded-lg">
       <div className="flex items-start gap-3">
@@ -244,12 +257,17 @@ const PatientHistory = () => {
 
                         {expandedSections[index] && (
                           <div className="space-y-6 pt-4 border-t border-gray-100">
-                            <div className="mt-4 flex gap-4 justify-end">
+                            <div className="mt-4 flex gap-4 justify-end flex-wrap">
                               <button
-                                onClick={() =>
-                                  handleEditClick(record.consultation_id)
-                                }
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                onClick={(e) => { e.stopPropagation(); handleRepeatPrescription(record); }}
+                                className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2 text-sm"
+                              >
+                                <FaPills />
+                                Repeat Prescription
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleEditClick(record.consultation_id); }}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
                               >
                                 Edit Consultation
                               </button>

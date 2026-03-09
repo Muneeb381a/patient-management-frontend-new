@@ -1,20 +1,42 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchDashboardStats, selectDashboard } from "../store/slices/dashboardSlice";
 
+// ── Horizontal bar chart for analytics ────────────────────────────────────────
+const HBarChart = ({ data, color }) => {
+  if (!data || data.length === 0) return <p className="text-sm text-gray-400 text-center py-4">No data yet.</p>;
+  const max = Math.max(...data.map((d) => Number(d.count)), 1);
+  return (
+    <div className="space-y-2.5">
+      {data.map((item, i) => (
+        <div key={i} className="flex items-center gap-3">
+          <span className="text-xs text-gray-500 dark:text-gray-400 w-32 truncate flex-shrink-0 text-right" title={item.name}>{item.name}</span>
+          <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+            <div
+              className={`${color} h-4 rounded-full transition-all duration-500`}
+              style={{ width: `${(Number(item.count) / max) * 100}%` }}
+            />
+          </div>
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 w-6 text-right flex-shrink-0">{item.count}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ── Stat Card ─────────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon, color, sub }) => (
-  <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow`}>
+  <div className={`bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-start gap-4 hover:shadow-md transition-shadow`}>
     <div className={`${color} p-3 rounded-xl text-white shadow-md flex-shrink-0`}>
       {icon}
     </div>
     <div className="min-w-0">
-      <p className="text-sm font-medium text-gray-500 truncate">{label}</p>
-      <p className="text-3xl font-bold text-gray-900 mt-1 leading-none">
-        {value ?? <span className="text-gray-300 text-2xl">—</span>}
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">{label}</p>
+      <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1 leading-none">
+        {value ?? <span className="text-gray-300 dark:text-gray-600 text-2xl">—</span>}
       </p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{sub}</p>}
     </div>
   </div>
 );
@@ -22,8 +44,8 @@ const StatCard = ({ label, value, icon, color, sub }) => (
 // ── Section Header ────────────────────────────────────────────────────────────
 const SectionHeader = ({ title, icon }) => (
   <div className="flex items-center gap-2 mb-4">
-    <span className="text-gray-400">{icon}</span>
-    <h2 className="text-base font-semibold text-gray-700">{title}</h2>
+    <span className="text-gray-400 dark:text-gray-500">{icon}</span>
+    <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200">{title}</h2>
   </div>
 );
 
@@ -49,7 +71,7 @@ const GenderBadge = ({ gender }) => {
 const DashboardPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { counts, recent_patients, upcoming_followups, monthly_trend, loading, error } = useSelector(selectDashboard);
+  const { counts, recent_patients, upcoming_followups, monthly_trend, top_medicines, top_symptoms, loading, error } = useSelector(selectDashboard);
 
   useEffect(() => {
     dispatch(fetchDashboardStats());
@@ -57,8 +79,16 @@ const DashboardPage = () => {
 
   const handleRefresh = () => dispatch(fetchDashboardStats(true));
 
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+  const toggleDark = () => {
+    const next = !darkMode;
+    setDarkMode(next);
+    document.documentElement.classList.toggle("dark", next);
+    try { localStorage.setItem("darkMode", String(next)); } catch {}
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Page Header */}
       <div className="bg-gradient-to-r from-teal-600 to-indigo-600 px-6 py-8 text-white">
         <div className="max-w-7xl mx-auto">
@@ -67,7 +97,22 @@ const DashboardPage = () => {
               <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
               <p className="text-teal-100 text-sm mt-1">Clinic overview at a glance</p>
             </div>
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap items-center">
+              <button
+                onClick={toggleDark}
+                title={darkMode ? "Light mode" : "Dark mode"}
+                className="p-2 rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors"
+              >
+                {darkMode ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
               <button
                 onClick={handleRefresh}
                 disabled={loading}
@@ -96,7 +141,7 @@ const DashboardPage = () => {
 
         {/* Error banner */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 flex items-center gap-2">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl p-4 text-sm text-red-700 dark:text-red-400 flex items-center gap-2">
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -168,7 +213,7 @@ const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
           {/* Recent Patients — 3 cols */}
-          <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
             <SectionHeader
               title="Recent Patients"
               icon={
@@ -188,24 +233,24 @@ const DashboardPage = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100">
-                      <th className="text-left text-xs font-semibold text-gray-400 pb-3">Name</th>
-                      <th className="text-left text-xs font-semibold text-gray-400 pb-3">Age</th>
-                      <th className="text-left text-xs font-semibold text-gray-400 pb-3">Gender</th>
-                      <th className="text-left text-xs font-semibold text-gray-400 pb-3">Registered</th>
+                    <tr className="border-b border-gray-100 dark:border-gray-700">
+                      <th className="text-left text-xs font-semibold text-gray-400 dark:text-gray-500 pb-3">Name</th>
+                      <th className="text-left text-xs font-semibold text-gray-400 dark:text-gray-500 pb-3">Age</th>
+                      <th className="text-left text-xs font-semibold text-gray-400 dark:text-gray-500 pb-3">Gender</th>
+                      <th className="text-left text-xs font-semibold text-gray-400 dark:text-gray-500 pb-3">Registered</th>
                       <th className="pb-3" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                     {recent_patients.map((p) => (
-                      <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
+                      <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
                         <td className="py-3 pr-4">
-                          <div className="font-medium text-gray-800 truncate max-w-[140px]">{p.name}</div>
-                          <div className="text-xs text-gray-400">{p.mr_no}</div>
+                          <div className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-[140px]">{p.name}</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500">{p.mr_no}</div>
                         </td>
-                        <td className="py-3 pr-4 text-gray-600">{p.age ?? "—"}</td>
+                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{p.age ?? "—"}</td>
                         <td className="py-3 pr-4"><GenderBadge gender={p.gender} /></td>
-                        <td className="py-3 pr-4 text-gray-400 text-xs whitespace-nowrap">{p.registered_on}</td>
+                        <td className="py-3 pr-4 text-gray-400 dark:text-gray-500 text-xs whitespace-nowrap">{p.registered_on}</td>
                         <td className="py-3 text-right">
                           <button
                             onClick={() => navigate(`/patients/${p.id}/consultation`)}
@@ -223,7 +268,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Upcoming Follow-ups — 2 cols */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
             <SectionHeader
               title="Upcoming Follow-ups"
               icon={
@@ -272,7 +317,7 @@ const DashboardPage = () => {
 
         {/* ── Monthly Trend ─────────────────────────────────────────────────── */}
         {monthly_trend.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
             <SectionHeader
               title="Consultations — Last 6 Months"
               icon={
@@ -306,6 +351,41 @@ const DashboardPage = () => {
           </div>
         )}
 
+        {/* ── Analytics: Top Medicines + Top Symptoms ───────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+            <SectionHeader
+              title="Top 10 Prescribed Medicines"
+              icon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              }
+            />
+            {loading && top_medicines.length === 0 ? (
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}</div>
+            ) : (
+              <HBarChart data={top_medicines} color="bg-indigo-500" />
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+            <SectionHeader
+              title="Top 10 Reported Symptoms"
+              icon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              }
+            />
+            {loading && top_symptoms.length === 0 ? (
+              <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}</div>
+            ) : (
+              <HBarChart data={top_symptoms} color="bg-teal-500" />
+            )}
+          </div>
+        </div>
+
         {/* ── Quick Actions ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
@@ -317,10 +397,10 @@ const DashboardPage = () => {
             <button
               key={label}
               onClick={action || (() => navigate(path))}
-              className="bg-white border border-gray-100 rounded-2xl p-5 text-center hover:shadow-md hover:border-indigo-200 transition-all group"
+              className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-5 text-center hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-500 transition-all group"
             >
               <span className="text-2xl block mb-2 group-hover:scale-110 transition-transform">{icon}</span>
-              <span className="text-sm font-medium text-gray-700">{label}</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
             </button>
           ))}
         </div>

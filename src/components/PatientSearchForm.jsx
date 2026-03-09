@@ -83,7 +83,7 @@ const PatientSearchForm = ({ onSearch, isSearching }) => {
         const suggestionRes = await fetchWithRetry(
           "get",
           `https://new-patient-management-backend-syst.vercel.app/api/patients/suggest?name=${encodeURIComponent(trimmedSearch)}`,
-          "patient-suggestions",
+          `patient-suggestions:${trimmedSearch.toLowerCase()}`,
           null,
           (data) => {
             if (!data?.success || !Array.isArray(data.data)) {

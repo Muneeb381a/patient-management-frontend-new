@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, Component } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PatientInfoHeader from "./PatientInfoHeader";
 import ConsultationForm from "./ConsultationForm";
@@ -10,6 +10,7 @@ import { fetchWithRetry } from "../utils/api";
 import { Loader } from "../pages/Loader";
 import {
   invalidateMedicines,
+  fetchMedicines,
   selectSymptoms,
   selectTests,
   selectMedicines,
@@ -90,6 +91,7 @@ class CustomErrorBoundary extends Component {
 const PatientConsultation = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   // ── Redux store — shared static data ───────────────────────────────────────
@@ -182,6 +184,53 @@ const PatientConsultation = () => {
       })
       .finally(() => setLoading(false));
   }, [patientId]);
+
+  // Pre-fill form when navigated with cloned consultation data
+  useEffect(() => {
+    const cloned = location.state?.clonedConsultation;
+    if (!cloned || appLoading.medicines || appLoading.symptoms) return;
+
+    // Map medicines from prescriptions (already have medicine_id + dosage data)
+    if (Array.isArray(cloned.prescriptions) && cloned.prescriptions.length > 0) {
+      const mappedMeds = cloned.prescriptions
+        .filter((p) => p.medicine_id)
+        .map((p) => ({
+          medicine_id: p.medicine_id,
+          dosage_en: p.dosage_en || "",
+          dosage_urdu: p.dosage_urdu || "",
+          frequency_en: p.frequency_en || "",
+          frequency_urdu: p.frequency_urdu || "",
+          duration_en: p.duration_en || "",
+          duration_urdu: p.duration_urdu || "",
+          instructions_en: p.instructions_en || "",
+          instructions_urdu: p.instructions_urdu || "",
+          how_to_take_en: p.how_to_take_en || null,
+          how_to_take_urdu: p.how_to_take_urdu || null,
+        }));
+      if (mappedMeds.length > 0) setSelectedMedicines(mappedMeds);
+    }
+
+    // Map tests: test_id → { value: test_id, label: test_name }
+    if (Array.isArray(cloned.tests) && cloned.tests.length > 0) {
+      const mappedTests = cloned.tests
+        .filter((t) => t.test_id)
+        .map((t) => ({ value: String(t.test_id), label: t.test_name }));
+      if (mappedTests.length > 0) setSelectedTests(mappedTests);
+    }
+
+    // Map symptoms: match names back to IDs from Redux store
+    if (Array.isArray(cloned.symptoms) && cloned.symptoms.length > 0 && symptomsOptions.length > 0) {
+      const nameSet = new Set(cloned.symptoms.map((n) => n?.toLowerCase()));
+      const mappedSymptoms = symptomsOptions.filter((s) =>
+        nameSet.has(s.label?.toLowerCase())
+      );
+      if (mappedSymptoms.length > 0) setSelectedSymptoms(mappedSymptoms);
+    }
+
+    if (cloned.prescriptions?.length > 0 || cloned.tests?.length > 0 || cloned.symptoms?.length > 0) {
+      toast.info("Previous prescription loaded. Review and adjust as needed.");
+    }
+  }, [location.state, appLoading.medicines, appLoading.symptoms, symptomsOptions]);
 
 
 

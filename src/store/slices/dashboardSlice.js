@@ -24,6 +24,8 @@ const dashboardSlice = createSlice({
     recent_patients: [],
     upcoming_followups: [],
     monthly_trend: [],
+    top_medicines: [],
+    top_symptoms: [],
     loading: false,
     error: null,
     lastFetched: null,
@@ -46,6 +48,8 @@ const dashboardSlice = createSlice({
           state.recent_patients = payload.recent_patients || [];
           state.upcoming_followups = payload.upcoming_followups || [];
           state.monthly_trend = payload.monthly_trend || [];
+          state.top_medicines = payload.top_medicines || [];
+          state.top_symptoms = payload.top_symptoms || [];
           state.lastFetched = Date.now();
         }
       })

@@ -770,6 +770,9 @@ const PatientSearch = () => {
         return;
       }
 
+      const isMobile = /^[0-9]{10,11}$/.test(searchInput);
+      const isName   = /^[a-zA-Z\s]{2,50}$/.test(searchInput);
+
       updateState({
         isSearching: true,
         patient: null,
@@ -777,35 +780,21 @@ const PatientSearch = () => {
         consultations: [],
         showAddPatient: false,
         expandedSections: {},
-        searchedMobile: /^[0-9]{11}$/.test(searchInput) ? searchInput : "",
-        searchedName: /^[a-zA-Z\s]{1,50}$/.test(searchInput) ? searchInput : "",
+        searchedMobile: isMobile ? searchInput : "",
+        searchedName:   isName   ? searchInput : "",
         showSuccessModal: false,
         blockNavigation: false,
         modalLock: false,
       });
 
-      const cacheKey = `search:${searchInput}`;
-      const cachedResult = cache.get(cacheKey);
-      if (cachedResult) {
-        updateState({
-          patient: cachedResult.patient,
-          consultations: [...cachedResult.consultations],
-          isSearching: false,
-        });
-        navigate(
-          `/patients/${cachedResult.patient.id || cachedResult.patient._id}`,
-          { replace: true }
-        );
-        return;
-      }
-
+      // Skip in-memory cache so results are always fresh after any mutation
       try {
         const query = new URLSearchParams();
-        if (/^[0-9]{11}$/.test(searchInput))
+        if (isMobile)
           query.append("mobile", searchInput);
-        else if (/^[a-zA-Z\s]{1,50}$/.test(searchInput))
+        else if (isName)
           query.append("name", searchInput);
-        else throw new Error("Invalid input format");
+        else throw new Error("Please enter a valid 10-11 digit mobile number or patient name");
 
         const patientRes = await fetchWithRetry(
           "get",
@@ -836,11 +825,6 @@ const PatientSearch = () => {
               (data) => (Array.isArray(data) ? data : [])
             );
 
-            cache.set(
-              cacheKey,
-              { patient: patientData, consultations: historyRes },
-              1000 * 60 * 15
-            );
             updateState({
               patient: patientData,
               consultations: [...historyRes],
